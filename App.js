@@ -38,7 +38,6 @@ export default class App extends Component {
         setTimeout(() => {
           navigationService.navigate(navigationStrings.Profile, { uid: getId })
         }, 1000)
-        // console.log(url);
       }
     });
 

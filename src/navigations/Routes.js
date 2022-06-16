@@ -12,7 +12,9 @@ const Stack = createStackNavigator();
 
 export default function Routes() {
     return (
-        <NavigationContainer ref={ref => navigationService.setTopLevelNavigator(ref)}>
+        <NavigationContainer ref={ref => {
+            navigationService.setTopLevelNavigator(ref)
+        }}>
             <Stack.Navigator>
                 <Stack.Screen name={navigationStrings.Home} component={Home} />
                 <Stack.Screen name={navigationStrings.Profile} component={Profile} />

@@ -1,4 +1,4 @@
-import { Text, StyleSheet, View, FlatList, Image, Pressable, Linking } from 'react-native'
+import { Text, StyleSheet, View, FlatList, Image, Pressable, Linking, Platform } from 'react-native'
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { userId, usersData } from '../../redux/actions/Users'
@@ -14,20 +14,28 @@ import { USERS_LIST } from '../../config/urls'
 class Profile extends Component {
 
     state = {
-        uid: this.props.route.params.uid
+        uid: this.props.route.params.uid,
+        getLink: '',
     }
 
     componentDidMount() {
         this.props.userId(this.state.uid)
+        if (Platform.OS === "ios") {
+            const iosGetlink = `deeplinking://${this.state.uid}`
+            this.setState({ getLink: iosGetlink });
+        } else {
+            const link = USERS_LIST + `/${this.state.uid}`
+            this.setState({ getLink: link })
+        }
     }
 
 
     shareUser = async () => {
-        const getLink = USERS_LIST + `/${this.state.uid}`
-        console.log('getLink', getLink)
+
+
         const res = await Share.open({
             message: 'Dummy message',
-            url: getLink
+            url: this.state.getLink
         })
             .then((res) => {
                 console.log(res);
