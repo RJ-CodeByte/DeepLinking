@@ -5,3 +5,4 @@ import userReducer from './reducers/Users';
 const rootReducer = combineReducers({ userReducer })
 
 export const Store = createStore(rootReducer, applyMiddleware(thunk));
+Store.subscribe(() => { console.log(Store.getState()) })
