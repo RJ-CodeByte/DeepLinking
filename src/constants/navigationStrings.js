@@ -1,4 +1,5 @@
 export default {
     Home: 'Home',
-    Profile: 'Profile'
+    Profile: 'Profile',
+    Camera: 'Camera'
 }
