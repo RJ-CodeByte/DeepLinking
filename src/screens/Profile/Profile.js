@@ -37,18 +37,12 @@ class Profile extends Component {
         this.state = {
             uid: this.props.route.params.uid,
             getLink: '',
-            imageurl: '',
             images: [],
-
-            // selectedimages:{
-            //     selectedItem: [],
-            //     selectedIndex: [],
-            //     selected: ,
-            // },
-            // selectedItem: '',
-            // selectedIndex: -1,
+            selectedImages: [],
+            // selectedImage: '',
+            bgColor: false,
             isVisible: false,
-            // selected: false,
+            selected: false,
         };
     }
 
@@ -119,7 +113,7 @@ class Profile extends Component {
         //     const res = response.hasOwnProperty('assets') && response.assets.map(function (item) {
         //         return item.uri;
         //     })
-        //     this.setState({ imageurl: res[0]?.toString() })
+        //     this.setState({ selectedImage: res[0]?.toString() })
         // })
     };
     openGallary() {
@@ -128,7 +122,7 @@ class Profile extends Component {
             const res = response.hasOwnProperty('assets') && response.assets.map(function (item) {
                 return item.uri;
             })
-            this.setState({ imageurl: res[0]?.toString(), isVisible: false })
+            this.setState({ selectedImage: res[0]?.toString(), isVisible: false })
         }).then(() => this.setState({ isVisible: false }))
     }
     handlePermission() {
@@ -185,8 +179,21 @@ class Profile extends Component {
     }
 
     selectedItems(item) {
-        console.log('item', item)
+        // console.log('item', item, this.state.images)
+        const dummyArray = this.state.images;
+        dummyArray.map((obj, index) => {
+            if (obj.node.image.uri === item.node.image.uri) {
+                obj.node.image.isSelected = !obj.node.image.isSelected;
+            }
+        })
+        this.setState({ images: dummyArray, selected: true })
     }
+
+    displaySelctedItems() {
+        this.setState({ selectedImages: this.state.images, isVisible: false })
+    }
+
+
     render() {
         return (
             <View style={{ justifyContent: 'center', alignItems: 'center', flex: 1 }}>
@@ -217,9 +224,8 @@ class Profile extends Component {
                             <View
                                 style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                                 <TouchableOpacity onPress={() => this.setState({
-                                    isVisible: false, selectedItem: '',
-                                    selectedIndex: -1,
-                                    selected: false,
+                                    isVisible: false,
+                                    // selected: false,
                                 })}>
                                     <Text style={{ color: '#5352ed' }}>Cancle</Text>
                                 </TouchableOpacity>
@@ -242,12 +248,6 @@ class Profile extends Component {
                                             activeOpacity={0.8}
                                             onPress={() => {
                                                 this.selectedItems(item)
-                                                // this.setState({
-                                                //     selectedIndex: index,
-                                                //     selected: true,
-                                                //     selectedItem: item.node.image.uri,
-                                                // })
-                                                // this.setState()
                                             }
                                             } style={{ width: '33%' }}>
                                             <ImageBackground
@@ -276,13 +276,13 @@ class Profile extends Component {
                                                             marginHorizontal: 10,
                                                             top: 10,
                                                         },
-                                                        this.state.selectedIndex === index && this.state.selected && {
+                                                        item.node.image.isSelected && {
                                                             backgroundColor: '#FFFF',
                                                         },
                                                     ]}
 
                                                     onPress={() => {
-                                                        this.setState({ selectedIndex: index, selected: true, selectedItem: item.node.image.uri, })
+                                                        // this.setState({ selectedIndex: index, selected: true, selectedItem: item.node.image.uri, })
                                                     }}
                                                 />
                                             </ImageBackground>
@@ -315,7 +315,8 @@ class Profile extends Component {
                                     marginVertical: '2%',
                                     justifyContent: 'center',
                                 }}
-                                onPress={() => this.setState({ isVisible: false, imageurl: this.state.selectedItem, selected: false, })}>
+                                onPress={() => this.displaySelctedItems()}
+                            >
                                 <Text
                                     style={{
                                         textAlign: 'center',
@@ -333,8 +334,8 @@ class Profile extends Component {
                     onPress={() => this.handlePermission()}>
                     <Image
                         source={{
-                            uri: !!this.state.imageurl
-                                ? this.state.imageurl
+                            uri: !!this.state.selectedImage
+                                ? this.state.selectedImage
                                 : !!this.props.userprofile.avatar
                                     ? this.props.userprofile.avatar
                                     : 'https://thumbs.dreamstime.com/b/user-profile-icon-creative-trendy-colorful-round-button-illustration-isolated-156511788.jpg',
@@ -344,13 +345,45 @@ class Profile extends Component {
                             height: moderateScale(200),
                         }}
                     />
-                    {/* <Image source={{ uri: this.state.imageurl }}
+
+
+
+                    {/* <Image source={{ uri: this.state.selectedImage }}
                         style={{
                             width: moderateScale(200),
                             height: moderateScale(200),
                         }}
                     /> */}
                 </TouchableOpacity>
+                <View style={{ flexWrap: 'wrap', marginVertical: '2%', flexDirection: 'row', }}>
+                    {console.log(this.state.selectedImages)}
+                    {this.state.selectedImages.map((p, i) => {
+                        if (p.node.image.isSelected === true) {
+                            return (
+                                <Image
+                                    key={i}
+                                    style={{
+                                        width: 120,
+                                        height: 110,
+                                        margin: '0.5%'
+                                    }}
+                                    source={{ uri: p.node.image.uri }}
+                                />
+                            );
+                        }
+                        // return (
+                        //     <Image
+                        //         key={i}
+                        //         style={{
+                        //             width: 120,
+                        //             height: 110,
+                        //             margin: '0.5%'
+                        //         }}
+                        //         source={{ uri: p.node.image.uri }}
+                        //     />
+                        // );
+                    })}
+                </View>
                 <Text
                     style={{
                         fontSize: moderateScale(30),
@@ -383,7 +416,7 @@ class Profile extends Component {
                     ]}>
                     <Text style={{ color: '#FFFF' }}>Share This User</Text>
                 </Pressable>
-            </View>
+            </View >
         );
     }
 }
