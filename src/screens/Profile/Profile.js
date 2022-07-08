@@ -9,6 +9,7 @@ import {
     Linking,
     Platform,
     Modal,
+    Dimensions,
     TouchableOpacity,
     TouchableWithoutFeedback,
     ImageBackground,
@@ -29,6 +30,7 @@ import { PERMISSIONS, request, RESULTS } from 'react-native-permissions';
 import { ModalFadeTransition } from '@react-navigation/stack/lib/typescript/src/TransitionConfigs/TransitionPresets';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+const win = Dimensions.get('window');
 class Profile extends Component {
     constructor(props) {
         super(props);
@@ -37,10 +39,16 @@ class Profile extends Component {
             getLink: '',
             imageurl: '',
             images: [],
-            selectedItem: '',
-            selectedIndex: -1,
+
+            // selectedimages:{
+            //     selectedItem: [],
+            //     selectedIndex: [],
+            //     selected: ,
+            // },
+            // selectedItem: '',
+            // selectedIndex: -1,
             isVisible: false,
-            selected: false,
+            // selected: false,
         };
     }
 
@@ -79,9 +87,27 @@ class Profile extends Component {
         })
             .then(r => {
                 // console.log('r', r.edges)
-                console.log('r.edges', r.edges);
-                this.setState({ images: r.edges, isVisible: true });
+
+                var mainArray = [];
+                let imageArray = []
+                // r.edges.push({ selected: false });                
+                // r.edges.map((obj, index) => {
+                //     // console.log('obj', obj)
+                //     imageArray = [{ ...obj.node.image, selected: false }]
+                //     // imageArray.push({ selected: false })
+                //     // array = [...obj.node.image, { selected: true }]                    
+                //     console.log('array', imageArray)
+                //     mainArray = [{ ...r.edges, }]
+                //     // mainArray.push(imageArray)
+                //     // obj.node.image.push({ selected: true })
+                // })
+                // console.log('r.edges', r.edges);
+                r.edges.map((obj, index) => {
+                    obj.node.image.isSelected = false
+                    mainArray.push(obj)
+                })
                 // this.setState({ photos: r.edges });
+                this.setState({ images: r.edges, isVisible: true });
             })
             .catch(err => {
                 //Error Loading Images
@@ -157,6 +183,10 @@ class Profile extends Component {
             });
         }
     }
+
+    selectedItems(item) {
+        console.log('item', item)
+    }
     render() {
         return (
             <View style={{ justifyContent: 'center', alignItems: 'center', flex: 1 }}>
@@ -186,7 +216,11 @@ class Profile extends Component {
                             }}>
                             <View
                                 style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                                <TouchableOpacity onPress={() => this.setState({ isVisible: false })}>
+                                <TouchableOpacity onPress={() => this.setState({
+                                    isVisible: false, selectedItem: '',
+                                    selectedIndex: -1,
+                                    selected: false,
+                                })}>
                                     <Text style={{ color: '#5352ed' }}>Cancle</Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity onPress={() => {
@@ -198,24 +232,34 @@ class Profile extends Component {
                             </View>
                             <View style={{ flex: 1, marginTop: '2%' }}>
                                 <FlatList
-                                    contentContainerStyle={{ flex: 1 }}
+                                    contentContainerStyle={{ flexGrow: 1 }}
+
                                     data={this.state.images}
                                     numColumns={3}
                                     renderItem={({ item, index }) => (
                                         <TouchableOpacity
+                                            delayPressIn={0}
+                                            activeOpacity={0.8}
                                             onPress={() => {
-                                                this.setState({
-                                                    selectedIndex: index,
-                                                    selected: !this.state.selected,
-                                                    selectedItem: item.node.image.uri,
-                                                });
-                                            }}>
+                                                this.selectedItems(item)
+                                                // this.setState({
+                                                //     selectedIndex: index,
+                                                //     selected: true,
+                                                //     selectedItem: item.node.image.uri,
+                                                // })
+                                                // this.setState()
+                                            }
+                                            } style={{ width: '33%' }}>
                                             <ImageBackground
                                                 key={index}
                                                 style={{
-                                                    width: 120,
-                                                    height: 120,
-                                                    margin: '0.5%',
+                                                    // flex: 1,
+                                                    width: (win.width - 48 - 6) / 3,
+                                                    // alignSelf: 'stretch',
+                                                    height: (win.width - 48 - 6) / 3,
+                                                    // aspectRatio: 0.5
+                                                    // margin: '0.5%',
+                                                    marginBottom: 4
                                                 }}
                                                 resizeMode="cover"
                                                 source={{ uri: item.node.image.uri }}>
@@ -236,7 +280,10 @@ class Profile extends Component {
                                                             backgroundColor: '#FFFF',
                                                         },
                                                     ]}
-                                                    onPress={() => this.setState({ selectedIndex: index, selected: !this.state.selected, selectedItem: item.node.image.uri, })}
+
+                                                    onPress={() => {
+                                                        this.setState({ selectedIndex: index, selected: true, selectedItem: item.node.image.uri, })
+                                                    }}
                                                 />
                                             </ImageBackground>
                                         </TouchableOpacity>
@@ -265,9 +312,10 @@ class Profile extends Component {
                                     backgroundColor: '#4154EA',
                                     borderRadius: 30,
                                     height: 50,
+                                    marginVertical: '2%',
                                     justifyContent: 'center',
                                 }}
-                                onPress={() => this.setState({ isVisible: false, imageurl: this.state.selectedItem })}>
+                                onPress={() => this.setState({ isVisible: false, imageurl: this.state.selectedItem, selected: false, })}>
                                 <Text
                                     style={{
                                         textAlign: 'center',
